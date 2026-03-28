@@ -1,11 +1,12 @@
 import re
 from fastapi import APIRouter, HTTPException
-from app.schemas.query import QueryRequest, QueryResponse
+from app.schemas.query import QueryRequest, QueryResponse, ErrorResponse
 from app.core.openai_client import generate_sql
+from app.services.query_service import execute_query
 
 router = APIRouter()
 
-FORBIDDEN_KEYWORDS = ["DROP", "DELETE", "UPDATE", "INSERT"]
+FORBIDDEN_KEYWORDS = ["DROP", "DELETE", "UPDATE", "INSERT", "TRUNCATE", "ALTER"]
 
 
 def is_safe_query(sql: str) -> bool:
@@ -19,7 +20,7 @@ def clean_sql(sql: str) -> str:
     return sql.strip()
 
 
-@router.post("/query", response_model=QueryResponse)
+@router.post("/query")
 async def query(request: QueryRequest):
     sql = generate_sql(request.question)
 
@@ -29,6 +30,12 @@ async def query(request: QueryRequest):
     sql = clean_sql(sql)
 
     if not is_safe_query(sql):
-        raise HTTPException(status_code=400, detail="Query contains forbidden SQL keywords")
+        return ErrorResponse(error="Query contains forbidden SQL keywords", sql=sql)
 
-    return QueryResponse(sql=sql)
+    try:
+        rows = execute_query(sql)
+        return QueryResponse(sql=sql, rows=rows)
+    except ValueError as e:
+        return ErrorResponse(error=str(e), sql=sql)
+    except Exception as e:
+        return ErrorResponse(error=f"Database error: {str(e)}", sql=sql)
