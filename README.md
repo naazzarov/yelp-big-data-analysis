@@ -1,61 +1,63 @@
 # Yelp Big Data Analysis - Text-to-SQL API
 
-A team project that converts natural language questions into SQL queries and executes them on a PostgreSQL database containing Yelp business data.
+This is a team project where we built an API that converts natural language questions into SQL queries and runs them against a PostgreSQL database with Yelp business data.
 
-## 📋 Overview
+## What This Is
 
-This API uses OpenAI's language models to automatically generate and execute SQL queries based on user questions, eliminating the need to write SQL manually.
+Basically, instead of writing SQL manually, you can ask questions in plain English and the API will generate and execute the SQL for you. We use OpenAI's language models to do the translation.
 
-## 🛠️ My Contribution
+## My Part
 
-- **Database Layer**: Connection pooling and query execution
-- **API Schemas**: Request/response validation using Pydantic
-- **Core Infrastructure**: FastAPI setup and routing
+I worked on:
+- Setting up the database connections with connection pooling
+- Creating the request/response schemas for validation
+- Building the core API infrastructure with FastAPI
 
-## 🏗️ Project Structure
+## How It's Structured
 
 ```
 app/
-├── main.py              # FastAPI application
-├── api/routes.py        # API endpoints
-├── core/                # Configuration & OpenAI integration
-├── db/database.py       # Database connection pooling
-├── schemas/query.py     # Request/response models
-└── services/query_service.py  # Query execution
+├── main.py              - The main FastAPI app
+├── api/routes.py        - Where the endpoints are defined
+├── core/                - Config and OpenAI stuff
+├── db/database.py       - Database connection management
+├── schemas/query.py     - Pydantic models for requests/responses
+└── services/query_service.py  - Actually running the queries
 ```
 
-## 🚀 Quick Start
+## Getting Started
 
-### 1. Install Dependencies
+First, install the dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Set Environment Variables
+Then copy the example env file and fill in your credentials:
 ```bash
 cp .env.example .env
-# Add your OpenAI API key and database credentials
 ```
 
-### 3. Run the Server
+You'll need your OpenAI API key and database details. Ask a team member if you need help setting this up.
+
+Run the server:
 ```bash
 uvicorn app.main:app --reload
 ```
 
-Server runs at: `http://localhost:8000`
+It'll be running at http://localhost:8000
 
-## 📡 API Usage
+## How to Use
 
-**Endpoint**: `POST /api/query`
+Send a POST request to `/api/query` with your question:
 
-**Request**:
 ```json
 {
   "question": "What are the top 5 highest-rated restaurants?"
 }
 ```
 
-**Response**:
+You get back the SQL that was generated and the results:
+
 ```json
 {
   "sql": "SELECT name, stars FROM business_small ORDER BY stars DESC LIMIT 5;",
@@ -66,36 +68,25 @@ Server runs at: `http://localhost:8000`
 }
 ```
 
-## 🔒 Security
+## Security Stuff
 
-- SQL injection prevention (forbidden keywords check)
-- Input validation with Pydantic
-- SELECT-only queries
-- CORS protection
+We made sure to:
+- Block dangerous SQL commands (DROP, DELETE, etc)
+- Validate all input with Pydantic
+- Only allow SELECT queries
+- Set up CORS properly
 
-## 💾 Key Components
+## What We Used
 
-### Database Connection (`app/db/database.py`)
-- Connection pooling for efficient resource management
-- Min 1, Max 5 concurrent connections
-- Automatic connection cleanup
+- FastAPI for the API
+- PostgreSQL through psycopg2
+- OpenAI API for generating SQL
+- Pydantic for validation
 
-### Schemas (`app/schemas/query.py`)
-- `QueryRequest`: Natural language question input
-- `QueryResponse`: SQL + results output
-- `ErrorResponse`: Error messages
-
-## 📦 Tech Stack
-
-- FastAPI 0.135.2
-- PostgreSQL (psycopg2)
-- OpenAI API
-- Pydantic 2.12.5
-
-## 📝 Environment Variables
+## The Environment Variables You Need
 
 ```
-OPENAI_API_KEY=your_key_here
+OPENAI_API_KEY=your_actual_key
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=yelp
@@ -103,15 +94,14 @@ DB_USER=postgres
 DB_PASSWORD=your_password
 ```
 
-## ✨ Features
+## Features
 
-✅ Natural language to SQL conversion
-✅ Automatic query execution
-✅ SQL injection protection
-✅ Connection pooling
-✅ Type-safe request/response handling
-✅ Error handling
+- Natural language to SQL conversion
+- Automatic query execution
+- Protection against SQL injection
+- Connection pooling to handle multiple requests
+- Type-safe request/response handling
 
 ---
 
-**Team Project** | Student Implementation
+This is a student project done as part of a team.
